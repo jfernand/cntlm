@@ -53,12 +53,12 @@ struct auth_s {
 	uint32_t flags;
 };
 
-#define auth_strcpy(creds, var, value) \
+#define AUTH_STRCPY(creds, var, value) \
 	if ((creds) && (value)) { \
 		strlcpy(((creds)->var), (value), MINIBUF_SIZE); \
 	}
 
-#define auth_memcpy(creds, var, value, len) \
+#define AUTH_MEMCPY(creds, var, value, len) \
 	if ((creds) && (value)) { \
 		memcpy(((creds)->var), (value), MIN(len, MINIBUF_SIZE)); \
 	}

@@ -675,30 +675,30 @@ int http_parse_basic(hlist_const_t headers, const char *header, struct auth_s *t
 		*pos = 0;
 		dom = strchr(buf, '\\');
 		if (dom == NULL) {
-			auth_strcpy(tcreds, domain, "");
-			auth_strcpy(tcreds, user, buf);
+			AUTH_STRCPY(tcreds, domain, "");
+			AUTH_STRCPY(tcreds, user, buf);
 		} else {
 			*dom = 0;
 			++dom;
-			auth_strcpy(tcreds, domain, buf);
-			auth_strcpy(tcreds, user, dom);
+			AUTH_STRCPY(tcreds, domain, buf);
+			AUTH_STRCPY(tcreds, user, dom);
 		}
 
 		if (tcreds->hashntlm2) {
 			tmp = ntlm2_hash_password(tcreds->user, tcreds->domain, pos+1);
-			auth_memcpy(tcreds, passntlm2, tmp, 16);
+			AUTH_MEMCPY(tcreds, passntlm2, tmp, 16);
 			free(tmp);
 		}
 
 		if (tcreds->hashnt) {
 			tmp = ntlm_hash_nt_password(pos+1);
-			auth_memcpy(tcreds, passnt, tmp, 21);
+			AUTH_MEMCPY(tcreds, passnt, tmp, 21);
 			free(tmp);
 		}
 
 		if (tcreds->hashlm) {
 			tmp = ntlm_hash_lm_password(pos+1);
-			auth_memcpy(tcreds, passlm, tmp, 21);
+			AUTH_MEMCPY(tcreds, passlm, tmp, 21);
 			free(tmp);
 		}
 
