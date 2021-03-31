@@ -19,8 +19,6 @@
  *
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <string.h>
 #include <strings.h>
 #include <stdlib.h>
@@ -30,6 +28,7 @@
 #include <ctype.h>
 #include <syslog.h>
 #include <assert.h>
+#include <pthread.h>
 #ifdef __CYGWIN__
 #include <windows.h>
 #include <wincrypt.h>
@@ -156,7 +155,7 @@ void plist_dump(plist_const_t list) {
 /*
  * Return the pointer associated with the key.
  */
-char *plist_get(plist_const_t list, const int key) {
+char *plist_get(plist_const_t list, const long key) {
 	plist_const_t t = list;
 
 	while (t) {
@@ -295,7 +294,6 @@ hlist_t hlist_add(hlist_t list, char *key, char *value, hlist_add_t allockey, hl
 	tmp->key = (allockey == HLIST_ALLOC ? strdup(key) : key);
 	tmp->value = (allocvalue == HLIST_ALLOC ? strdup(value) : value);
 	tmp->next = NULL;
-	tmp->islist = 0;
 
 	if (list == NULL)
 		return tmp;
