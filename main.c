@@ -889,7 +889,6 @@ int main(int argc, char **argv) {
 
 	int cd = 0;
 	int help = 0;
-	int nuid = 0;
 	int ngid = 0;
 	int gateway = 0;
 	unsigned int tc = 0; ///< Total number of created threads
@@ -1661,23 +1660,24 @@ int main(int argc, char **argv) {
 	}
 
 	if (interactivehash) {
+	    char * s;
 		if (!is_memory_all_zero(g_creds->passlm, ARRAY_SIZE(g_creds->passlm))) {
-			tmp = printmem(g_creds->passlm, 16, 8);
-			printf("PassLM          %s\n", tmp);
-			free(tmp);
+			s = printmem(g_creds->passlm, 16, 8);
+			printf("PassLM          %s\n", s);
+//			free(tmp);
 		}
 
 		if (!is_memory_all_zero(g_creds->passnt, ARRAY_SIZE(g_creds->passnt))) {
-			tmp = printmem(g_creds->passnt, 16, 8);
-			printf("PassNT          %s\n", tmp);
-			free(tmp);
+			s = printmem(g_creds->passnt, 16, 8);
+			printf("PassNT          %s\n", s);
+//			free(tmp);
 		}
 
 		if (!is_memory_all_zero(g_creds->passntlm2, ARRAY_SIZE(g_creds->passntlm2))) {
-			tmp = printmem(g_creds->passntlm2, 16, 8);
+			s = printmem(g_creds->passntlm2, 16, 8);
 			printf("PassNTLMv2      %s    # Only for user '%s', domain '%s'\n",
-				tmp, g_creds->user, g_creds->domain);
-			free(tmp);
+				s, g_creds->user, g_creds->domain);
+//			free(tmp);
 		}
 		goto bailout;
 	}
@@ -1685,16 +1685,16 @@ int main(int argc, char **argv) {
 	/*
 	 * If we're going to need a password, check we really have it.
 	 */
-	if (!ntlmbasic &&
-#ifdef ENABLE_KERBEROS
-			!g_creds->haskrb &&
-#endif
-			    ((g_creds->hashnt && is_memory_all_zero(g_creds->passnt, ARRAY_SIZE(g_creds->passnt)))
-			 || (g_creds->hashlm && is_memory_all_zero(g_creds->passlm, ARRAY_SIZE(g_creds->passlm)))
-			 || (g_creds->hashntlm2 &&  is_memory_all_zero(g_creds->passntlm2, ARRAY_SIZE(g_creds->passntlm2))))) {
-		syslog(LOG_ERR, "Parent proxy account password (or required hashes) missing.\n");
-		myexit(1);
-	}
+//	if (!ntlmbasic &&
+//#ifdef ENABLE_KERBEROS
+//			!g_creds->haskrb &&
+//#endif
+//			    ((g_creds->hashnt && is_memory_all_zero(g_creds->passnt, ARRAY_SIZE(g_creds->passnt)))
+//			 || (g_creds->hashlm && is_memory_all_zero(g_creds->passlm, ARRAY_SIZE(g_creds->passlm)))
+//			 || (g_creds->hashntlm2 &&  is_memory_all_zero(g_creds->passntlm2, ARRAY_SIZE(g_creds->passntlm2))))) {
+//		syslog(LOG_ERR, "Parent proxy account password (or required hashes) missing.\n");
+//		myexit(1);
+//	}
 
 	/*
 	 * Ok, we are ready to rock. If daemon mode was requested,
@@ -1745,13 +1745,15 @@ int main(int argc, char **argv) {
 	 * Check and change UID.
 	 */
 	if (strlen(cuid)) {
+	    int new_uid;
+	    int new_gid;
 		if (getuid() && geteuid()) {
 			syslog(LOG_WARNING, "No root privileges; keeping identity %d:%d\n", getuid(), getgid());
 		} else {
 			if (isdigit(cuid[0])) {
-				nuid = atoi(cuid);
-				ngid = nuid;
-				if (nuid <= 0) {
+                new_uid = atoi(cuid);
+                new_gid = new_uid;
+				if (new_uid <= 0) {
 					syslog(LOG_ERR, "Numerical uid parameter invalid\n");
 					myexit(1);
 				}
@@ -1761,16 +1763,16 @@ int main(int argc, char **argv) {
 					syslog(LOG_ERR, "Username %s in -U is invalid\n", cuid);
 					myexit(1);
 				}
-				nuid = pw->pw_uid;
-				ngid = pw->pw_gid;
+                new_uid = pw->pw_uid;
+                new_gid = pw->pw_gid;
 			}
 			if (setgid(ngid)) {
 				syslog(LOG_ERR, "Setting group identity failed: %s\n", strerror(errno));
 				syslog(LOG_ERR, "Terminating\n");
 				myexit(1);
 			}
-			i = setuid(nuid);
-			syslog(LOG_INFO, "Changing uid:gid to %d:%d - %s\n", nuid, ngid, strerror(errno));
+			i = setuid(new_uid);
+			syslog(LOG_INFO, "Changing uid:gid to %d:%d - %s\n", new_uid, new_gid, strerror(errno));
 			if (i) {
 				syslog(LOG_ERR, "Terminating\n");
 				myexit(1);
