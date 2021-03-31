@@ -57,9 +57,9 @@ else
 endif
 
 ifneq ($(findstring CYGWIN,$(OS)),)
-	OBJS=utils.o ntlm.o xcrypt.o config.o socket.o auth.o http.o forward.o direct.o scanner.o pages.o main.o sspi.o win/resources.o
+	OBJS=utils.o ntlm.o xcrypt.o config.o socket.o auth.o http.o forward.o direct.o scanner.o pages.o main.o sspi.o win/resources.o sys.o
 else
-	OBJS=utils.o ntlm.o xcrypt.o config.o socket.o auth.o http.o forward.o direct.o scanner.o pages.o main.o
+	OBJS=utils.o ntlm.o xcrypt.o config.o socket.o auth.o http.o forward.o direct.o scanner.o pages.o main.o sys.o
 endif
 
 ENABLE_KERBEROS=$(shell grep -c ENABLE_KERBEROS config/config.h)
@@ -73,7 +73,7 @@ ifeq ($(ENABLE_PACPARSER),1)
 	LDFLAGS+=-lpacparser
 endif
 
-#CFLAGS+=-g
+CFLAGS+=-g
 
 all: $(NAME)
 
